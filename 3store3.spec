@@ -1,13 +1,12 @@
 Summary:	3store RDF engine
 Summary(pl):	Silnik RDF 3store
 Name:		3store3
-Version:	3.0.14
+Version:	3.0.17
 Release:	1
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://dl.sourceforge.net/threestore/%{name}-%{version}.tar.gz
-# Source0-md5:	cec45452e83fefd7f59066ecb3ae871e
-Patch0:		%{name}-db4.patch
+# Source0-md5:	6e5dceaa076e603e618384e01da6a50a
 URL:		http://threestore.sourceforge.net/
 BuildRequires:	db-devel >= 4.1
 BuildRequires:	glib2-devel >= 2.2.0
@@ -64,7 +63,6 @@ Statyczna biblioteka 3store.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 %configure
