@@ -1,5 +1,5 @@
 Summary:	3store RDF engine
-Summary(pl.UTF-8):   Silnik RDF 3store
+Summary(pl.UTF-8):	Silnik RDF 3store
 Name:		3store3
 Version:	3.0.17
 Release:	1
@@ -35,7 +35,7 @@ odpowiedzi; udostępnia możliwości wnioskowania RDFS.
 
 %package devel
 Summary:	Header files for 3store library
-Summary(pl.UTF-8):   Pliki nagłówkowe biblioteki 3store
+Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki 3store
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 Requires:	db-devel >= 4.1
@@ -51,7 +51,7 @@ Pliki nagłówkowe biblioteki 3store.
 
 %package static
 Summary:	Static 3store library
-Summary(pl.UTF-8):   Statyczna biblioteka 3store
+Summary(pl.UTF-8):	Statyczna biblioteka 3store
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{version}-%{release}
 
