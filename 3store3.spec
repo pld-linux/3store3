@@ -1,5 +1,5 @@
 Summary:	3store RDF engine
-Summary(pl):	Silnik RDF 3store
+Summary(pl.UTF-8):   Silnik RDF 3store
 Name:		3store3
 Version:	3.0.17
 Release:	1
@@ -25,17 +25,17 @@ or through a C API or command line inferface.
 It can handle 100M triple knowledge bases, white retaining fast
 response times, and provides RDFS inference capabilities.
 
-%description -l pl
+%description -l pl.UTF-8
 3store to triplestore dla RDF(S) napisany w C z backendem MySQL.
-UdostÍpnia silnik zapytaÒ RDF obs≥uguj±cy SPARQL i RDQL po HTTP,
-poprzez API C lub z linii poleceÒ.
+Udostƒôpnia silnik zapyta≈Ñ RDF obs≈ÇugujƒÖcy SPARQL i RDQL po HTTP,
+poprzez API C lub z linii polece≈Ñ.
 
-Moøe obs≥uøyÊ bazy wiedzy rzÍdu 100M zachowuj±c krÛtkie czasy
-odpowiedzi; udostÍpnia moøliwo∂ci wnioskowania RDFS.
+Mo≈ºe obs≈Çu≈ºyƒá bazy wiedzy rzƒôdu 100M zachowujƒÖc kr√≥tkie czasy
+odpowiedzi; udostƒôpnia mo≈ºliwo≈õci wnioskowania RDFS.
 
 %package devel
 Summary:	Header files for 3store library
-Summary(pl):	Pliki nag≥Ûwkowe biblioteki 3store
+Summary(pl.UTF-8):   Pliki nag≈Ç√≥wkowe biblioteki 3store
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 Requires:	db-devel >= 4.1
@@ -46,19 +46,19 @@ Requires:	rasqal-devel >= 0.9.11
 %description devel
 Header files for 3store library.
 
-%description devel -l pl
-Pliki nag≥Ûwkowe biblioteki 3store.
+%description devel -l pl.UTF-8
+Pliki nag≈Ç√≥wkowe biblioteki 3store.
 
 %package static
 Summary:	Static 3store library
-Summary(pl):	Statyczna biblioteka 3store
+Summary(pl.UTF-8):   Statyczna biblioteka 3store
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{version}-%{release}
 
 %description static
 Static 3store library.
 
-%description static -l pl
+%description static -l pl.UTF-8
 Statyczna biblioteka 3store.
 
 %prep
