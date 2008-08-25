@@ -1,0 +1,12 @@
+--- 3store3-3.0.17/configure.ac.orig	2006-07-17 12:30:03.000000000 +0200
++++ 3store3-3.0.17/configure.ac	2008-08-25 18:45:53.982127605 +0200
+@@ -78,7 +78,9 @@
+ 
+ LIBS_SAVE=$LIBS
+ LIBS=""
++AC_CHECK_LIB([tinfo], [tgetent], [], [
+ AC_CHECK_LIB([curses], [tgetent], [], AC_MSG_ERROR([Cannot find curses library]))
++])
+ AC_CHECK_LIB([readline], [readline], [], AC_MSG_ERROR([Cannot find readline library]))
+ LIBS_READLINE=$LIBS
+ LIBS=$LIBS_SAVE
