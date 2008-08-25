@@ -2,18 +2,23 @@ Summary:	3store RDF engine
 Summary(pl.UTF-8):	Silnik RDF 3store
 Name:		3store3
 Version:	3.0.17
-Release:	1
+Release:	2
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://dl.sourceforge.net/threestore/%{name}-%{version}.tar.gz
 # Source0-md5:	6e5dceaa076e603e618384e01da6a50a
+Patch0:		%{name}-link.patch
+Patch1:		%{name}-rasqal.patch
 URL:		http://threestore.sourceforge.net/
+BuildRequires:	autoconf >= 2.59
+BuildRequires:	automake
 BuildRequires:	db-devel >= 4.1
 BuildRequires:	glib2-devel >= 2.2.0
+BuildRequires:	libtool
 BuildRequires:	mysql-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	pkgconfig
-BuildRequires:	rasqal-devel >= 0.9.11
+BuildRequires:	rasqal-devel >= 0.9.16
 BuildRequires:	readline-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -41,7 +46,7 @@ Requires:	%{name} = %{version}-%{release}
 Requires:	db-devel >= 4.1
 Requires:	glib2-devel >= 2.2.0
 Requires:	mysql-devel
-Requires:	rasqal-devel >= 0.9.11
+Requires:	rasqal-devel >= 0.9.16
 
 %description devel
 Header files for 3store library.
@@ -63,8 +68,15 @@ Statyczna biblioteka 3store.
 
 %prep
 %setup -q
+%patch0 -p1
+%patch1 -p1
 
 %build
+%{__libtoolize}
+%{__aclocal}
+%{__autoconf}
+%{__autoheader}
+%{__automake}
 %configure
 %{__make}
 
@@ -85,6 +97,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc AUTHORS ChangeLog README RELEASE-NOTES TODO
 %attr(755,root,root) %{_bindir}/ts-*
 %attr(755,root,root) %{_libdir}/lib3store.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/lib3store.so.0
 %{_datadir}/3store3
 %{_mandir}/man1/ts-*.1*
 
