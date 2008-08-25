@@ -9,6 +9,7 @@ Source0:	http://dl.sourceforge.net/threestore/%{name}-%{version}.tar.gz
 # Source0-md5:	6e5dceaa076e603e618384e01da6a50a
 Patch0:		%{name}-link.patch
 Patch1:		%{name}-rasqal.patch
+Patch2:		%{name}-db.patch
 URL:		http://threestore.sourceforge.net/
 BuildRequires:	autoconf >= 2.59
 BuildRequires:	automake
@@ -70,6 +71,7 @@ Statyczna biblioteka 3store.
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 %{__libtoolize}
