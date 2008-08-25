@@ -1,0 +1,201 @@
+--- 3store3-3.0.17/src/sql-compile.c.orig	2006-07-17 12:29:26.000000000 +0200
++++ 3store3-3.0.17/src/sql-compile.c	2008-08-25 18:57:16.490120063 +0200
+@@ -1376,7 +1376,7 @@ static void ts_expression_descend(ts_sym
+     case RASQAL_EXPR_REM:
+ 	prom = ts_expression_promoted_type(RASQAL_LITERAL_UNKNOWN, e->arg1);
+ 	prom = ts_expression_promoted_type(prom, e->arg2);
+-	if (prom == RASQAL_LITERAL_UNKNOWN) prom = RASQAL_LITERAL_FLOATING;
++	if (prom == RASQAL_LITERAL_UNKNOWN) prom = RASQAL_LITERAL_DOUBLE;
+ 	g_string_append(s, "(");
+ 	ts_expression_descend(st, e->arg1, s, prom, block);
+ 	g_string_append(s, ts_sql_operator(e->op));
+@@ -1386,9 +1386,9 @@ static void ts_expression_descend(ts_sym
+ 
+     case RASQAL_EXPR_SLASH:
+ 	g_string_append(s, "(");
+-	ts_expression_descend(st, e->arg1, s, RASQAL_LITERAL_FLOATING, block);
++	ts_expression_descend(st, e->arg1, s, RASQAL_LITERAL_DOUBLE, block);
+ 	g_string_append(s, ts_sql_operator(e->op));
+-	ts_expression_descend(st, e->arg2, s, RASQAL_LITERAL_FLOATING, block);
++	ts_expression_descend(st, e->arg2, s, RASQAL_LITERAL_DOUBLE, block);
+ 	g_string_append(s, ")");
+ 	break;
+ 
+@@ -1437,8 +1437,8 @@ static void ts_expression_descend(ts_sym
+ 	    g_string_sprintfa(s, "%i", e->literal->value.integer);
+ 	    break;
+ 
+-	case RASQAL_LITERAL_FLOATING:
+ 	case RASQAL_LITERAL_FLOAT:
++	case RASQAL_LITERAL_DOUBLE:
+ 	case RASQAL_LITERAL_DECIMAL:
+ 	    g_string_sprintfa(s, "%0.16g", e->literal->value.floating);
+ 	    break;
+@@ -1472,7 +1472,7 @@ static void ts_expression_descend(ts_sym
+ 
+ 	    if (prom == TS_ORDER_EXPRESSION_ASC || prom == TS_ORDER_EXPRESSION_DESC) {
+ 		char *dir = (prom == TS_ORDER_EXPRESSION_ASC) ? "ASC" : "DESC";
+-		const char *vftable = ts_symbol_valtbl_type(lsym, TS_ORDER_BLOCK, RASQAL_LITERAL_FLOATING);
++		const char *vftable = ts_symbol_valtbl_type(lsym, TS_ORDER_BLOCK, RASQAL_LITERAL_DOUBLE);
+ 		const char *fcolumn = "val";
+ 
+ 		ts_symbol_valtbl_reqd(lsym, TS_ORDER_BLOCK);
+@@ -1790,8 +1790,8 @@ static int ts_expression_latebind(ts_sym
+ 	case RASQAL_LITERAL_STRING:
+ 	case RASQAL_LITERAL_DATETIME:
+ 	case RASQAL_LITERAL_INTEGER:
+-	case RASQAL_LITERAL_FLOATING:
+ 	case RASQAL_LITERAL_FLOAT:
++	case RASQAL_LITERAL_DOUBLE:
+ 	case RASQAL_LITERAL_DECIMAL:
+ 	case RASQAL_LITERAL_BOOLEAN:
+ 	case RASQAL_LITERAL_QNAME:
+@@ -1949,7 +1949,7 @@ static rasqal_literal_type ts_expression
+ 	if (!strncmp(XSD_NAMESPACE, typeuri, 33)) {
+ 	    if (!strcmp(typeuri, XSD_FLOAT) ||
+ 		!strcmp(typeuri, XSD_DOUBLE)) {
+-		return RASQAL_LITERAL_FLOATING;
++		return RASQAL_LITERAL_DOUBLE;
+ 	    } else if (!strcmp(typeuri, XSD_INTEGER)) {
+ 		return RASQAL_LITERAL_INTEGER;
+ 	    } else if (!strcmp(typeuri, XSD_DATE) ||
+@@ -1965,7 +1965,7 @@ static rasqal_literal_type ts_expression
+ 	return RASQAL_LITERAL_INTEGER;
+     }
+     if (e->op == RASQAL_EXPR_SLASH) {
+-	return RASQAL_LITERAL_FLOATING;
++	return RASQAL_LITERAL_DOUBLE;
+     }
+     if (ts_binary_numerical_op(e)) {
+ 	rasqal_literal_type nt = ts_expression_promoted_type(t, e->arg1);
+--- 3store3-3.0.17/src/symtab.c.orig	2005-12-06 11:36:42.000000000 +0100
++++ 3store3-3.0.17/src/symtab.c	2008-08-25 18:57:43.642126767 +0200
+@@ -83,7 +83,7 @@ const char *ts_symbol_valtbl_type(ts_sym
+ 	tag = "i";
+ 	idx = 0;
+ 	break;
+-    case RASQAL_LITERAL_FLOATING:
++    case RASQAL_LITERAL_DOUBLE:
+ 	table = T_F;
+ 	tag = "f";
+ 	idx = 1;
+--- 3store3-3.0.17/src/connection.c.orig	2005-10-17 14:55:25.000000000 +0200
++++ 3store3-3.0.17/src/connection.c	2008-08-25 19:08:08.950121739 +0200
+@@ -22,18 +22,17 @@
+ #include "config.h"
+ #include "tstore.h"
+ 
+-static int ts_inited = 0;
++static rasqal_world *rasqalp = NULL;
+ 
+ void ts_init()
+ {
+-    ts_inited = 1;
+-    rasqal_init();
++    rasqalp = rasqal_new_world();
+ }
+ 
+ void ts_finish()
+ {
+-    ts_inited = 0;
+-    rasqal_finish();
++    rasqal_free_world(rasqalp);
++    rasqalp = NULL;
+ }
+ 
+ ts_connection *ts_connect(const char *host, const char *db,
+@@ -44,10 +43,11 @@ ts_connection *ts_connect(const char *ho
+     char tmp[TS_CF_VAL_SIZE];
+     int table_version = 0;
+ 
+-    if (!ts_inited) {
++    if (rasqalp == NULL) {
+ 	fprintf(stderr, "fatal error: lib3store not initialised\n");
+ 	return NULL;
+     }
++    c->rasqalp = rasqalp;
+ 
+     if (!(c->db = mysql_init(NULL))) {
+         fprintf(stderr, "Could not initialise database connection\n");
+--- 3store3-3.0.17/src/ts-explain.c.orig	2005-12-06 14:57:58.000000000 +0100
++++ 3store3-3.0.17/src/ts-explain.c	2008-08-25 19:10:48.498123415 +0200
+@@ -71,19 +71,20 @@ int main(int argc, char*argv[])
+ 	const char *lang;
+ 	const char *label;
+ 
+-	rasqal_init();
++	rasqal_world *rasqalp = rasqal_new_world();
+ 
+         fprintf(stderr, "Usage: %s "TSP_OPTIONS" <query>\n" TSP_HELP, basename(argv[0]));
+ 	fprintf(stderr, "   -l, --language  use language for this explanation\n");
+ 	fprintf(stderr, "    where language is one of:");
+ 	for (i=0; 1; i++) {
+-	    if (rasqal_languages_enumerate(i, &lang, &label, NULL)) {
++	    if (rasqal_languages_enumerate(rasqalp, i, &lang, &label, NULL)) {
+ 		break;
+ 	    }
+ 	    fprintf(stderr, " %s", lang);
+ 	}
+ 	fprintf(stderr, "\n");
+ 	fprintf(stderr, "See man pages for more details\n");
++	rasqal_free_world(rasqalp);
+         return 1;
+     }
+ 
+--- 3store3-3.0.17/src/query.c.orig	2005-12-06 14:57:58.000000000 +0100
++++ 3store3-3.0.17/src/query.c	2008-08-25 19:08:23.010117548 +0200
+@@ -54,7 +54,7 @@ ts_query *ts_query_prepare(ts_connection
+ 
+     tq = calloc(1, sizeof(ts_query));
+     bu = raptor_new_uri((unsigned char *)base_uri);
+-    rq = rasqal_new_query(lang, NULL);
++    rq = rasqal_new_query(c->rasqalp, lang, NULL);
+     rasqal_query_set_error_handler(rq, tq, parser_error_handler);
+     ret = rasqal_query_prepare(rq, (unsigned char *)query, bu);
+     if (ret) {
+--- 3store3-3.0.17/src/ts-query.c.orig	2005-12-21 15:29:09.000000000 +0100
++++ 3store3-3.0.17/src/ts-query.c	2008-08-25 19:11:28.282113358 +0200
+@@ -91,7 +91,7 @@ int main(int argc, char*argv[])
+ 	const char *lang;
+ 	const char *label;
+ 
+-	rasqal_init();
++	rasqal_world *rasqalp = rasqal_new_world();
+ 
+         fprintf(stderr, "Usage: %s "TSP_OPTIONS" [-l language] "
+ 	        "[-f format] [-O level] [<query>]\n" TSP_HELP, basename(argv[0]));
+@@ -101,7 +101,7 @@ int main(int argc, char*argv[])
+ 	fprintf(stderr, "                   0=none, 1=normal, 2=high, 3=experimental\n");
+ 	fprintf(stderr, "    where language is one of:");
+ 	for (i=0; 1; i++) {
+-	    if (rasqal_languages_enumerate(i, &lang, &label, NULL)) {
++	    if (rasqal_languages_enumerate(rasqalp, i, &lang, &label, NULL)) {
+ 		break;
+ 	    }
+ 	    fprintf(stderr, " %s", lang);
+@@ -116,6 +116,7 @@ int main(int argc, char*argv[])
+ 	}
+ 	fprintf(stderr, "\n\n");
+ 	fprintf(stderr, "See man pages for more details\n");
++	rasqal_free_world(rasqalp);
+ 	
+         return 1;
+     }
+--- 3store3-3.0.17/src/datatypes.h.orig	2005-12-06 11:28:10.000000000 +0100
++++ 3store3-3.0.17/src/datatypes.h	2008-08-25 19:07:27.614128443 +0200
+@@ -7,6 +7,7 @@
+ #include <stdint.h>
+ #include <limits.h>
+ #include <db.h>
++#include <rasqal.h>
+ 
+ #include "config.h"
+ 
+@@ -106,6 +107,7 @@ typedef struct ts_connection_s {
+ 				 * assertions */
+ 	int lock_tables;
+ 	ts_bulk_import_data *bid;
++	rasqal_world *rasqalp;
+ } ts_connection;
+ 
+ typedef struct ts_binding_desc_s {
