@@ -1,0 +1,11 @@
+--- 3store3-3.0.17/configure.ac.orig	2008-08-25 20:02:35.550124000 +0200
++++ 3store3-3.0.17/configure.ac	2008-08-25 20:10:52.318128443 +0200
+@@ -74,7 +74,7 @@
+ PKG_CHECK_MODULES([RASQAL], rasqal >= 0.9.11)
+ PKG_CHECK_MODULES([GLIB], glib-2.0 >= 2.2.0)
+ 
+-AC_SEARCH_LIBS([db_create], [db-4.4 db-4.3 db-4.2 db-4.1 db], [], AC_MSG_ERROR([Cannot find Berkeley DB library version 4]))
++AC_SEARCH_LIBS([db_create], [db-4.7 db-4.6 db-4.5 db-4.4 db-4.3 db-4.2 db-4.1 db], [], AC_MSG_ERROR([Cannot find Berkeley DB library version 4]))
+ 
+ LIBS_SAVE=$LIBS
+ LIBS=""
