@@ -2,7 +2,7 @@ Summary:	3store RDF engine
 Summary(pl.UTF-8):	Silnik RDF 3store
 Name:		3store3
 Version:	3.0.17
-Release:	2
+Release:	3
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://dl.sourceforge.net/threestore/%{name}-%{version}.tar.gz
