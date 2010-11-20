@@ -1,0 +1,16 @@
+--- 3store3-3.0.17/src/sql-compile.c.orig	2010-11-19 21:20:10.367102452 +0100
++++ 3store3-3.0.17/src/sql-compile.c	2010-11-20 09:44:36.963102452 +0100
+@@ -156,11 +156,13 @@
+ 	    g_hash_table_foreach(symtab->hash, union_clear, opt_block);
+ 	}
+     }
++#if RASQAL_VERSION < 917
+     if ((opt && !reqd) || (!opt && reqd)) {
+ 	ts_parse_constr_seq(symtab,
+ 			rasqal_graph_pattern_get_constraint_sequence(pattern),
+ 			&sql_constrs[*opt_block], *opt_block);
+     }
++#endif
+ }
+ 
+ void union_clear(gpointer key, gpointer value, gpointer user_data)

@@ -10,6 +10,7 @@ Source0:	http://dl.sourceforge.net/threestore/%{name}-%{version}.tar.gz
 Patch0:		%{name}-link.patch
 Patch1:		%{name}-rasqal.patch
 Patch2:		%{name}-db.patch
+Patch3:		%{name}-rasqal-disable-constrs.patch
 URL:		http://threestore.sourceforge.net/
 BuildRequires:	autoconf >= 2.59
 BuildRequires:	automake
@@ -72,6 +73,7 @@ Statyczna biblioteka 3store.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 %{__libtoolize}
